@@ -1,0 +1,53 @@
+upstream unicorn {
+  server unix:<%= node["unicorn-ng"]["config"]["listen"] %> fail_timeout=0;
+}
+
+server {
+  root        /var/www/<%= node["application"]["name"] %>.com/current/public;
+  listen      80;
+  server_name <%= node["application"]["name"] %>.com
+              www.<%= node["application"]["name"] %>.com
+              <%= node["application"]["name"] %>.local;
+
+  charset UTF-8;
+
+  if (-f /var/www/<%= node["application"]["name"] %>.com/shared/public/system/maintenance.html) {
+    return 503;
+  }
+
+  try_files $uri/index.html $uri.html $uri @unicorn;
+
+  error_page 404 /404.html;
+  error_page 500 502 504 /500.html;
+  error_page 503 @503;
+
+  location @503 {
+    if (-f $request_filename) {
+      break;
+    }
+
+    root /var/www/<%= node["application"]["name"] %>.com/shared/public;
+
+    rewrite ^(.*)$ /system/maintenance.html break;
+  }
+
+  location ~ "^/assets/" {
+    gzip_vary on;
+    gzip_static on;
+
+    add_header ETag "";
+    add_header Expires "Thu, 31 Dec 2037 23:55:55 GMT";
+    add_header Cache-Control "public, max-age=315360000";
+  }
+
+  location @unicorn {
+    proxy_redirect off;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    proxy_pass http://unicorn;
+    proxy_read_timeout 1m;
+    proxy_send_timeout 1m;
+  }
+}

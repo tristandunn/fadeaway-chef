@@ -1,0 +1,9 @@
+# vim: set ft=monitrc:
+
+check process postgresql with pidfile /var/run/postgresql/9.3-main.pid
+  start "/usr/sbin/service postgresql start"
+  stop "/usr/sbin/service postgresql stop"
+
+  if failed port 5432 type tcp then restart
+  if 5 restarts within 5 cycles then timeout
+  if does not exist for 1 cycle then restart

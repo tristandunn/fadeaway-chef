@@ -1,0 +1,8 @@
+# vim: set ft=monitrc:
+
+check process unicorn with pidfile /var/www/getfadeaway.com/current/tmp/pids/unicorn.pid
+  start "/usr/sbin/service unicorn start"
+  stop "/usr/sbin/service unicorn stop"
+
+  if 5 restarts within 5 cycles then timeout
+  if does not exist for 1 cycle then restart

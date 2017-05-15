@@ -1,0 +1,9 @@
+# vim: set ft=monitrc:
+
+check process sshd with pidfile /var/run/sshd.pid
+  start "/usr/sbin/service ssh start"
+  stop "/usr/sbin/service ssh stop"
+
+  if failed port 22 protocol ssh then restart
+  if 5 restarts within 5 cycles then timeout
+  if does not exist for 1 cycle then restart

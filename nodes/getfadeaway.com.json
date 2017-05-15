@@ -1,0 +1,49 @@
+{
+  "run_list" : [
+    "recipe[timezone-ii]",
+    "recipe[user]",
+    "recipe[sshd]",
+    "recipe[ruby]",
+    "recipe[database]",
+    "recipe[server]",
+    "recipe[unicorn]",
+    "recipe[monit]"
+  ],
+
+  "application" : {
+    "env"  : "production",
+    "name" : "getfadeaway"
+  },
+
+  "nginx" : {
+    "install_method" : "source",
+
+    "source" : {
+      "version"  : "1.8.0",
+      "checksum" : "23cca1239990c818d8f6da118320c4979aadf5386deda691b1b7c2c96b9df3d5",
+      "modules"  : [
+        "nginx::http_gzip_static_module",
+        "nginx::http_spdy_module",
+        "nginx::http_ssl_module"
+      ]
+    },
+
+    "server_tokens"        : "off",
+    "disable_access_log"   : true,
+    "default_site_enabled" : false
+  },
+
+  "ruby" : {
+    "version" : "2.2.3"
+  },
+
+  "sshd" : {
+    "sshd_config" : {
+      "PasswordAuthentication" : "no"
+    }
+  },
+
+  "tz" : "America/Chicago",
+
+  "user" : "deploy"
+}
